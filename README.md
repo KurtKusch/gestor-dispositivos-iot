@@ -1,62 +1,126 @@
-# 📡 Gestor de Dispositivos IoT
+# Gestor de Dispositivos IoT con SQLAlchemy y Alembic
 
-Este proyecto es un sistema backend para la gestión de dispositivos IoT. Está desarrollado en Python utilizando **SQLAlchemy** como ORM y **Alembic** para el control de versiones del esquema de base de datos. El objetivo es registrar y administrar dispositivos físicos, sensores y los datos que generan.
+Este proyecto implementa un sistema de gestión de dispositivos IoT utilizando SQLAlchemy como ORM y Alembic para el control de versiones del esquema de base de datos.
 
----
+## Diseño
 
-## 📁 Estructura del Proyecto
+El sistema está diseñado para gestionar una flota de dispositivos IoT, sus sensores, lecturas de datos y estados. La estructura de datos incluye:
 
-```
-gestor_iot/
-├── app/
-│   ├── __init__.py
-│   ├── models.py             # Modelos de SQLAlchemy
-│   ├── database.py           # Configuración de la base de datos
-│   ├── crud.py               # Funciones CRUD
-│   └── main.py               # Script para pruebas
-├── alembic/                  # Migraciones automáticas de Alembic
-│   ├── versions/             # Archivos de migraciones
-│   └── env.py                # Configuración de Alembic
-├── alembic.ini               # Configuración general de Alembic
-├── .gitignore
-├── pyproject.toml            # Archivo de dependencias
-├── uv.lock                   # Archivo de lock para poetry
-├── .python-version           # Versión de Python usada en el proyecto
-└── README.md
-```
+- **TipoDispositivo**: Representa un tipo o modelo de dispositivo (ej. 'Raspberry Pi 4', 'ESP32 Temp Sensor v2').
+- **GrupoDispositivos**: Representa una agrupación lógica de dispositivos (ej. 'Sensores Edificio A', 'Monitores Ambientales').
+- **Dispositivo**: Representa una instancia física de un dispositivo con su información de identificación y ubicación.
+- **Sensor**: Representa un sensor específico dentro de un dispositivo.
+- **LecturaDato**: Almacena una lectura de datos de un sensor.
+- **LogEstadoDispositivo**: Registra cambios en el estado de un dispositivo.
 
----
+## Configuración del Entorno
 
-## 🧱 Requisitos del Proyecto
+### Requisitos
 
-- Python 3.11+
+- Python 3.8 o superior
 - PostgreSQL
-- SQLAlchemy
-- Alembic
-- poetry o pip para gestión de dependencias
+- uv (gestor de paquetes para Python)
 
----
+### Instalación
 
-## ⚙️ Configuración Inicial
-
-1. Clona el repositorio:
+1. Clonar el repositorio:
 
 ```bash
 git clone https://github.com/KurtKusch/gestor-dispositivos-iot.git
 cd gestor-dispositivos-iot
 ```
 
-2. Crea el entorno virtual e instala dependencias:
+2. Instalar uv (si no lo tienes):
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+pip install uv
 ```
 
-> *O si usas `poetry`:*
+3. Crear un entorno virtual e instalar las dependencias usando uv:
+
 ```bash
-poetry install
+uv venv
+source .venv/bin/activate  # En Windows: .venv\Scripts\activate
+uv pip install -r pyproject.toml
 ```
 
----
+Alternativamente, puedes usar el modo editable:
+
+```bash
+uv pip install -e .
+```
+
+O si prefieres usar pip tradicional:
+
+```bash
+python -m venv venv
+source venv/bin/activate  # En Windows: venv\Scripts\activate
+pip install -e .
+```
+
+4. Configurar la base de datos:
+
+Crea una base de datos PostgreSQL llamada `iot_devices` y configura las credenciales en el archivo `.env`:
+
+```
+DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/iot_devices
+```
+
+## Ejecución
+
+### Aplicar Migraciones
+
+Para crear las tablas en la base de datos:
+
+```bash
+alembic upgrade head
+```
+
+### Ejecutar el Script de Demostración
+
+Para ejecutar el script que demuestra la funcionalidad del sistema:
+
+```bash
+python -m app.main
+```
+
+## Estructura del Proyecto
+
+```
+.
+├── alembic/                  # Configuración y scripts de Alembic
+│   ├── versions/             # Scripts de migración
+│   │   ├── initial_schema.py # Migración inicial
+│   │   └── schema_modifications.py # Modificaciones al esquema
+│   ├── env.py                # Configuración del entorno de Alembic
+│   └── script.py.mako        # Plantilla para scripts de migración
+├── app/                      # Código fuente de la aplicación
+│   ├── __init__.py           # Inicialización del paquete
+│   ├── database.py           # Configuración de la base de datos
+│   ├── models.py             # Definición de modelos SQLAlchemy
+│   ├── crud.py               # Operaciones CRUD
+│   └── main.py               # Script principal de demostración
+├── .env                      # Variables de entorno
+├── .python-version           # Versión de Python
+├── pyproject.toml            # Configuración del proyecto y dependencias
+├── database_dump.sql         # Dump de la base de datos en formato SQL
+├── uv.lock                   # Archivo de bloqueo de dependencias de uv
+└── README.md                 # Documentación del proyecto
+```
+
+## Operaciones CRUD Implementadas
+
+- Gestión de Tipos de Dispositivo: crear, consultar
+- Gestión de Grupos de Dispositivos: crear, consultar
+- Gestión de Dispositivos: crear, asociar a grupos, desasociar de grupos, consultar
+- Gestión de Sensores: crear, consultar
+- Gestión de Lecturas de Datos: registrar, consultar
+- Gestión de Logs de Estado: registrar, consultar
+
+## Modificaciones de Esquema
+
+Se han implementado las siguientes modificaciones al esquema original:
+
+1. Adición de la columna `umbral_alerta` (Float, nullable) al modelo Sensor.
+2. Adición de la columna `estado_actual` al modelo Dispositivo para un acceso más rápido al estado.
+3. Reestructuración de la ubicación: renombrado de `ubicacion` a `descripcion_ubicacion` y adición de `coordenadas_gps` (String, opcional) para almacenar coordenadas GPS.

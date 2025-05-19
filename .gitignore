@@ -1,5 +1,11 @@
-.venv/
+.venv
+.env
+.vscode
+venv/
 __pycache__/
 *.pyc
 *.sqlite
 alembic/versions/__pycache__/
+_init_.py
+.python-version
+requierements.txt
