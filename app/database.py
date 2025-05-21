@@ -1,12 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import os
-from dotenv import load_dotenv
 
-load_dotenv()
-
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Configuración directa de la conexión a la base de datos
+DATABASE_URL = "postgresql://postgres:contraseña@usuario:5432/iot_devices"
 
 engine = create_engine(DATABASE_URL)
 

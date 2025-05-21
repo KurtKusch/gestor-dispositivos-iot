@@ -60,11 +60,16 @@ pip install -e .
 
 4. Configurar la base de datos:
 
-Crea una base de datos PostgreSQL llamada `iot_devices` y configura las credenciales en el archivo `.env`:
+Crea una base de datos PostgreSQL llamada `iot_devices`. La configuración de la conexión a la base de datos se encuentra directamente en el archivo `app/database.py` y alembic.ini. Si necesitas modificar las credenciales de conexión, edita la variable `DATABASE_URL` y `sqlalchemy.url` en estos archivos:
 
+```python
+DATABASE_URL = "postgresql://postgres:contraseña@usuario:5432/iot_devices"
 ```
-DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/iot_devices
+```python
+sqlalchemy.url = postgresql://postgres:contraseña@usuario:5432/iot_devices
 ```
+
+Asegúrate de cambiar los valores por tus propias credenciales de PostgreSQL.
 
 ## Ejecución
 
@@ -100,7 +105,6 @@ python -m app.main
 │   ├── models.py             # Definición de modelos SQLAlchemy
 │   ├── crud.py               # Operaciones CRUD
 │   └── main.py               # Script principal de demostración
-├── .env                      # Variables de entorno
 ├── .python-version           # Versión de Python
 ├── pyproject.toml            # Configuración del proyecto y dependencias
 ├── database_dump.sql         # Dump de la base de datos en formato SQL

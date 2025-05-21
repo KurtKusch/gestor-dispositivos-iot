@@ -5,15 +5,11 @@ from sqlalchemy import pool
 
 from alembic import context
 
-import os
-from dotenv import load_dotenv
-
 
 config = context.config
 
-load_dotenv()
-database_url = os.getenv("DATABASE_URL")
-config.set_main_option("sqlalchemy.url", database_url)
+from app.database import DATABASE_URL
+config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
